@@ -1,0 +1,168 @@
+presentation:
+  title: "Swift Charts の軸に良い感じで日時を表示する"
+  author: "[発表者名]"
+  date: "[発表日]"
+  slides:
+    - slide: 1
+      title: "タイトル"
+      type: "title"
+      content:
+        - "Swift Charts の軸に良い感じで日時を表示する"
+        - "発表者: [発表者名]"
+        - "日付: [発表日]"
+      
+    - slide: 2
+      title: "問題提起・導入"
+      type: "content"
+      content:
+        - "Swift Chartsで簡単にグラフを作成できる"
+        - "細かい調整にはAPIの理解が必要"
+        - "ドキュメントだけでは不明な点が多い"
+        - "今回の目的: ラベル調整の実例紹介"
+      
+    - slide: 3
+      title: "データ構造の紹介"
+      type: "code"
+      content:
+        - "今回使用するデータ構造"
+        - "時刻と回数を保持するシンプルな構造"
+      code: |
+        struct Record: Identifiable {
+            var id: UUID = UUID()
+            let date: Date
+            let count: Int
+        }
+        
+        var records: [Record] = [
+            Record(date: DateComponents(calendar: .current, year: 2022, month: 11, day: 1, hour: 18).date!, count: 10),
+            Record(date: DateComponents(calendar: .current, year: 2022, month: 11, day: 2, hour: 18).date!, count: 20),
+            // ... 他のデータ
+        ]
+      
+    - slide: 4
+      title: "デフォルトのグラフ表示"
+      type: "code"
+      content:
+        - "基本的なChart実装"
+        - "デフォルト表示の確認"
+      code: |
+        struct ContentView: View {
+            var body: some View {
+                Chart(records) { record in
+                    PointMark(
+                        x: .value("Date", record.date),
+                        y: .value("Count", record.count)
+                    )
+                }
+                .frame(height: 200)
+                .padding(.horizontal)
+            }
+        }
+      image: "image1"
+      
+    - slide: 5
+      title: "X軸調整の基本 (.chartXAxis)"
+      type: "code"
+      content:
+        - ".chartXAxisの導入"
+        - "AxisMarks(values: .automatic)の説明"
+        - "デフォルトとの同等性"
+      code: |
+        .chartXAxis {
+            AxisMarks(values: .automatic)
+        }
+      notes:
+        - "指定がない場合は自動的にこの設定と同等"
+        - "表示結果は変更前と同じ"
+      
+    - slide: 6
+      title: "AxisMarksの詳細調整"
+      type: "code"
+      content:
+        - "AxisGridLine()のみの場合"
+        - "他の要素が消える問題"
+        - "完全な要素の復元"
+      code_examples:
+        - title: "GridLineのみ"
+          code: |
+            .chartXAxis {
+                AxisMarks(values: .automatic) { date in
+                    AxisGridLine()
+                }
+            }
+          image: "image2"
+        - title: "完全な復元"
+          code: |
+            .chartXAxis {
+                AxisMarks(values: .automatic) { date in
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel(format: .dateTime.day())
+                }
+            }
+          image: "image3"
+      
+    - slide: 7
+      title: "日時フォーマットのカスタマイズ"
+      type: "code"
+      content:
+        - "AxisValueLabel(format:)の使用"
+        - "日付のみ表示: .dateTime.day()"
+        - "日・月・年の組み合わせ"
+      code: |
+        // 日付のみ
+        AxisValueLabel(format: .dateTime.day())
+        
+        // 日・月・年
+        AxisValueLabel(format: .dateTime.day().month().year())
+      notes:
+        - "フォーマットの組み合わせで表示内容をカスタマイズ"
+        - "軸ラベルの調整が可能"
+      
+    - slide: 8
+      title: "表示間隔の調整"
+      type: "code"
+      content:
+        - ".stride(by:, count:)の使用"
+        - "1日おきの表示"
+        - "3日おきの表示"
+      code: |
+        // 1日おきの表示
+        .chartXAxis {
+            AxisMarks(values: .stride(by: .day, count: 1))
+        }
+        
+        // 3日おきの場合
+        .chartXAxis {
+            AxisMarks(values: .stride(by: .day, count: 3))
+        }
+      image: "image4"
+      notes:
+        - "countの値で間隔を調整"
+        - "自動調整を上書きして制御"
+      
+    - slide: 9
+      title: "まとめ"
+      type: "summary"
+      content:
+        - "小さな日時範囲: 自動調整で十分"
+        - "広い日時範囲: 手動設定が必要"
+        - "細かい表示要求: コードでの適切な設定"
+        - "推奨: AxisMarks(values: .stride(by:, count:))の活用"
+      
+    - slide: 10
+      title: "質疑応答"
+      type: "qa"
+      content:
+        - "ご質問をお受けします"
+
+metadata:
+  total_slides: 10
+  estimated_duration: "15-20分"
+  target_audience: "iOS開発者"
+  difficulty: "中級"
+  images_needed:
+    - "image1: デフォルトのグラフ表示"
+    - "image2: AxisGridLineのみの表示"
+    - "image3: 完全な要素復元後の表示"
+    - "image4: 1日おき表示の結果"
