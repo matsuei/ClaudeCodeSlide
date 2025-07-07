@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Charts の軸に良い感じで日時を表示する</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Slide 1: Title -->
+    <section class="slide slide-title">
+        <h1>Swift Charts の軸に良い感じで日時を表示する</h1>
+        <p class="author">発表者: [発表者名]</p>
+        <p class="date">日付: [発表日]</p>
+    </section>
+
+    <!-- Slide 2: Introduction -->
+    <section class="slide slide-content">
+        <h2>問題提起・導入</h2>
+        <ul>
+            <li>Swift Chartsで簡単にグラフを作成できる</li>
+            <li>細かい調整にはAPIの理解が必要</li>
+            <li>ドキュメントだけでは不明な点が多い</li>
+            <li>今回の目的: ラベル調整の実例紹介</li>
+        </ul>
+    </section>
+
+    <!-- Slide 3: Data Structure -->
+    <section class="slide slide-code">
+        <h2>データ構造の紹介</h2>
+        <div class="slide-content">
+            <div class="description">
+                <ul>
+                    <li>今回使用するデータ構造</li>
+                    <li>時刻と回数を保持するシンプルな構造</li>
+                </ul>
+            </div>
+            <div class="code-block">
+                <pre><code class="swift">struct Record: Identifiable {
+    var id: UUID = UUID()
+    let date: Date
+    let count: Int
+}
+
+var records: [Record] = [
+    Record(date: DateComponents(
+        calendar: .current, 
+        year: 2022, month: 11, day: 1, hour: 18
+    ).date!, count: 10),
+    Record(date: DateComponents(
+        calendar: .current, 
+        year: 2022, month: 11, day: 2, hour: 18
+    ).date!, count: 20),
+    // ... 他のデータ
+]</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: Default Chart -->
+    <section class="slide slide-code">
+        <h2>デフォルトのグラフ表示</h2>
+        <div class="slide-content">
+            <div class="description">
+                <ul>
+                    <li>基本的なChart実装</li>
+                    <li>デフォルト表示の確認</li>
+                </ul>
+            </div>
+            <div class="code-and-image">
+                <div class="code-block">
+                    <pre><code class="swift">struct ContentView: View {
+    var body: some View {
+        Chart(records) { record in
+            PointMark(
+                x: .value("Date", record.date),
+                y: .value("Count", record.count)
+            )
+        }
+        .frame(height: 200)
+        .padding(.horizontal)
+    }
+}</code></pre>
+                </div>
+                <div class="image-container">
+                    <img src="images/image1.png" alt="デフォルトのグラフ表示">
+                    <p class="image-caption">デフォルトのグラフ表示</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Basic X-Axis -->
+    <section class="slide slide-code">
+        <h2>X軸調整の基本 (.chartXAxis)</h2>
+        <div class="slide-content">
+            <div class="description">
+                <ul>
+                    <li>.chartXAxisの導入</li>
+                    <li>AxisMarks(values: .automatic)の説明</li>
+                    <li>デフォルトとの同等性</li>
+                </ul>
+            </div>
+            <div class="code-block">
+                <pre><code class="swift">.chartXAxis {
+    AxisMarks(values: .automatic)
+}</code></pre>
+            </div>
+            <div class="notes">
+                <p><strong>注意:</strong> 指定がない場合は自動的にこの設定と同等</p>
+                <p>表示結果は変更前と同じ</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: Detailed AxisMarks -->
+    <section class="slide slide-code">
+        <h2>AxisMarksの詳細調整</h2>
+        <div class="slide-content">
+            <div class="description">
+                <ul>
+                    <li>AxisGridLine()のみの場合</li>
+                    <li>他の要素が消える問題</li>
+                    <li>完全な要素の復元</li>
+                </ul>
+            </div>
+            <div class="code-examples">
+                <div class="code-example">
+                    <h3>GridLineのみ</h3>
+                    <div class="code-block">
+                        <pre><code class="swift">.chartXAxis {
+    AxisMarks(values: .automatic) { date in
+        AxisGridLine()
+    }
+}</code></pre>
+                    </div>
+                    <div class="image-container">
+                        <img src="images/image2.png" alt="GridLineのみの表示">
+                    </div>
+                </div>
+                <div class="code-example">
+                    <h3>完全な復元</h3>
+                    <div class="code-block">
+                        <pre><code class="swift">.chartXAxis {
+    AxisMarks(values: .automatic) { date in
+        AxisGridLine()
+        AxisTick()
+        AxisValueLabel(format: .dateTime.day())
+    }
+}</code></pre>
+                    </div>
+                    <div class="image-container">
+                        <img src="images/image3.png" alt="完全な復元後の表示">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 7: Date Format Customization -->
+    <section class="slide slide-code">
+        <h2>日時フォーマットのカスタマイズ</h2>
+        <div class="slide-content">
+            <div class="description">
+                <ul>
+                    <li>AxisValueLabel(format:)の使用</li>
+                    <li>日付のみ表示: .dateTime.day()</li>
+                    <li>日・月・年の組み合わせ</li>
+                </ul>
+            </div>
+            <div class="code-block">
+                <pre><code class="swift">// 日付のみ
+AxisValueLabel(format: .dateTime.day())
+
+// 日・月・年
+AxisValueLabel(format: .dateTime.day().month().year())</code></pre>
+            </div>
+            <div class="notes">
+                <p><strong>ポイント:</strong> フォーマットの組み合わせで表示内容をカスタマイズ</p>
+                <p>軸ラベルの調整が可能</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 8: Display Interval -->
+    <section class="slide slide-code">
+        <h2>表示間隔の調整</h2>
+        <div class="slide-content">
+            <div class="description">
+                <ul>
+                    <li>.stride(by:, count:)の使用</li>
+                    <li>1日おきの表示</li>
+                    <li>3日おきの表示</li>
+                </ul>
+            </div>
+            <div class="code-and-image">
+                <div class="code-block">
+                    <pre><code class="swift">// 1日おきの表示
+.chartXAxis {
+    AxisMarks(values: .stride(by: .day, count: 1))
+}
+
+// 3日おきの場合
+.chartXAxis {
+    AxisMarks(values: .stride(by: .day, count: 3))
+}</code></pre>
+                </div>
+                <div class="image-container">
+                    <img src="images/image4.png" alt="1日おき表示の結果">
+                    <p class="image-caption">1日おき表示の結果</p>
+                </div>
+            </div>
+            <div class="notes">
+                <p><strong>ポイント:</strong> countの値で間隔を調整</p>
+                <p>自動調整を上書きして制御</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 9: Summary -->
+    <section class="slide slide-summary">
+        <h2>まとめ</h2>
+        <ul>
+            <li>小さな日時範囲: 自動調整で十分</li>
+            <li>広い日時範囲: 手動設定が必要</li>
+            <li>細かい表示要求: コードでの適切な設定</li>
+            <li>推奨: <code>AxisMarks(values: .stride(by:, count:))</code>の活用</li>
+        </ul>
+    </section>
+
+    <!-- Slide 10: Q&A -->
+    <section class="slide slide-qa">
+        <h2>質疑応答</h2>
+        <p class="qa-text">ご質問をお受けします</p>
+    </section>
+</body>
+</html>
